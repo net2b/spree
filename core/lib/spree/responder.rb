@@ -16,13 +16,15 @@ module Spree
     end
 
     def to_html
-      super and return if !(on_success || on_failure)
-      has_errors? ? controller.instance_exec(&on_failure) : controller.instance_exec(&on_success)
+      super
+      callback = has_errors? ? on_failure : on_success
+      controller.instance_exec(&callback) if callback
     end
 
     def to_format
-      super and return if !(on_success || on_failure)
-      has_errors? ? controller.instance_exec(&on_failure) : controller.instance_exec(&on_success)
+      super
+      callback = has_errors? ? on_failure : on_success
+      controller.instance_exec(&callback) if callback
     end
 
     private
