@@ -1,3 +1,8 @@
+# Complete Spree override because we need to change state machine definitions to fix some bugs.
+# For example in the original spree implementation inventory checks are AFTER the payments,
+# they should be first.
+# This is fixed in the most recent master spree (5 mar 2016)
+# https://github.com/spree/spree/commit/03bcaceda2d82050f9a94cc714153f409c7137c7
 module Spree
   class Order < Spree::Base
     module Checkout
@@ -69,6 +74,10 @@ module Spree
                 transition to: :awaiting_return
               end
 
+              # Spree override: moved before the next block.
+              before_transition to: :complete, do: :ensure_line_item_variants_are_not_deleted
+              before_transition to: :complete, do: :ensure_line_items_are_in_stock
+
               if states[:payment]
                 before_transition to: :complete do |order|
                   if order.payment_required? && order.payments.valid.empty?
@@ -101,9 +110,6 @@ module Spree
 
               before_transition to: :resumed, do: :ensure_line_item_variants_are_not_deleted
               before_transition to: :resumed, do: :ensure_line_items_are_in_stock
-
-              before_transition to: :complete, do: :ensure_line_item_variants_are_not_deleted
-              before_transition to: :complete, do: :ensure_line_items_are_in_stock
 
               after_transition to: :complete, do: :finalize!
               after_transition to: :resumed,  do: :after_resume
