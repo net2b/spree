@@ -71,9 +71,18 @@ $(document).ready(function () {
         token: Spree.api_key
       }
     }).done(function () {
+      $("#ship-errors").removeClass('flash');
       window.location.reload();
     }).error(function (msg) {
       console.log(msg);
+
+      if (msg["responseText"]) {
+        var errors = JSON.parse(msg["responseText"]);
+
+        if (errors["exception"]) {
+          $("#ship-errors").addClass('flash').html(errors["exception"]);
+        }
+      }
     });
   });
 

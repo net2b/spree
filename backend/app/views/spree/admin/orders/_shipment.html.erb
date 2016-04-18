@@ -12,6 +12,7 @@
         <%= link_to Spree.t(:ship), '#', :class => 'ship button fa fa-arrow-right', :data => {'shipment-number' => shipment.number} %>
       <% end %>
     </legend>
+    <span class="error" id="ship-errors"></span>
   </fieldset>
 
   <table class="stock-contents index" data-hook="stock-contents">
